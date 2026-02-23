@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Inattention, Impulsivity Test</title>
+  <style>
+    body {
+      background-color: black;
+      text-align: center; 
+      color: white;
+      font-family: Arial; }
+    #box {
+      width: 120px;
+      height: 120px;
+      margin: 50px auto;
+      display: none;
+      cursor: pointer;
+    }
+
+    #startBin{
+      display: block;
+    }
+  </style>
+</head>
+    <body>
+
+    <h2>Inattention, Impulsivity Test</h2>
+    <p>Click only when the box is GREEN.<br>Do NOT click when RED.</p>
+
+    <p id="status">Click Start</p>
+    <button id = "startBtn" onclick="startGame()">Start</button>
+    <div id="box"></div>
+    <script src="/static/game.js"></script>
+    </body>
+</html>

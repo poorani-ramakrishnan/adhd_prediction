@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ADHD Prediction Result</title>
+    <style>
+        body {
+    background: linear-gradient(to right, #74ebd5, #acb6e5);
+            text-align: center;
+        }
+        .card {
+            background: white;
+            width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        .result {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: white;
+            background: #007bff;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>ADHD Detection Result</h2>
+
+    <div class="result">
+        {{ result }}
+    </div>
+
+    <a href="/">Go Back</a>
+</div>
+
+</body>
+</html>
