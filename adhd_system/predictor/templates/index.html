@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ADHD Assessment System | Professional Screening</title>
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <script src="{% static 'voice.js' %}"></script>
   <script>
     function openGame() {
       const width = 600;
@@ -27,6 +28,10 @@
     <header style="text-align: center; margin-bottom: 40px;">
       <h1 class="title-gradient" style="font-size: 2.5rem; margin-bottom: 8px;">ADHD Assessment System</h1>
       <p style="color: var(--text-muted); font-weight: 500;">AI-Powered Behavioral Screening Tool</p>
+      <button id="voiceToggle" class="btn btn-outline" onclick="startVoice()"
+        style="margin-top: 15px; font-size: 0.9rem;">
+        🔊 Start Assessment with Voice
+      </button>
     </header>
 
     <div class="glass-card">
@@ -41,25 +46,27 @@
 
         <!-- Basic Information -->
         <div class="question-group">
-          <h3 class="question-text">Basic Information</h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div>
-              <label for="age"
-                style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">Age</label>
-              <input type="number" name="age" id="age" required placeholder="Enter age">
-            </div>
-            <div>
-              <label for="EducationStage"
-                style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">Education
-                Stage</label>
-              <select name="EducationStage" id="EducationStage" required>
-                <option value="">Select Stage</option>
-                <option value="Child">Child</option>
-                <option value="Teen">Teen</option>
-                <option value="Undergrad">Undergrad</option>
-                <option value="Adult">Adult</option>
-              </select>
-            </div>
+          <p class="question-text">How old are you?</p>
+          <div style="max-width: 200px;">
+            <label for="age"
+              style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">Age</label>
+            <input type="number" name="age" id="age" required placeholder="Enter age">
+          </div>
+        </div>
+
+        <div class="question-group">
+          <p class="question-text">What is your current Education Stage?</p>
+          <div style="max-width: 300px;">
+            <label for="EducationStage"
+              style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">Education
+              Stage</label>
+            <select name="EducationStage" id="EducationStage" required>
+              <option value="">Select Stage</option>
+              <option value="Child">Child</option>
+              <option value="Teen">Teen</option>
+              <option value="Undergrad">Undergrad</option>
+              <option value="Adult">Adult</option>
+            </select>
           </div>
         </div>
 
@@ -266,6 +273,8 @@
           <input type="hidden" name="missed_go" id="missed_go" value="0">
           <input type="hidden" name="correct_inhibit" id="correct_inhibit" value="0">
           <input type="hidden" name="commission_errors" id="commission_errors" value="0">
+          <input type="hidden" name="distractor_clicks" id="distractor_clicks" value="0">
+          <input type="hidden" name="rt_variability" id="rt_variability" value="0">
           <input type="hidden" name="reaction_times" id="reaction_times" value="[]">
         </div>
 

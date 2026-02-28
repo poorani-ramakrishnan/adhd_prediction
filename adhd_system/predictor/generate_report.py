@@ -289,6 +289,8 @@ def _symptom_interpretation(user_data, prediction, game_data):
     mean_rt    = int(np.mean(rts)) if rts else None
     commission_rate = commission / total if total else 0
     missed_rate     = missed_go / total if total else 0
+    distractors     = game_data.get("distractor_clicks", 0)
+    variability     = float(game_data.get("rt_variability", 0))
 
     items = []
 
@@ -328,9 +330,25 @@ def _symptom_interpretation(user_data, prediction, game_data):
             f"Your commission error rate ({commission_rate*100:.0f}%) was within a normal range, "
             f"suggesting good response inhibition.")
 
+    if distractors > 3:
+        game_parts.append(
+            f"You clicked on irrelevant distractors {distractors} times. This often reflects difficulty "
+            f"filtering out environmental noise and maintaining selective attention.")
+    elif distractors > 0:
+        game_parts.append(
+            f"A few distractors were clicked ({distractors}), which is common but can indicate minor lapses in focus.")
+
     if missed_rate > 0.25:
         game_parts.append(
             f"You missed {missed_rate*100:.0f}% of Go targets, which can reflect inattention or slow processing.")
+    
+    if variability > 150:
+        game_parts.append(
+            f"Your Reaction Time Variability was high ({variability} ms). This is a common clinical indicator "
+            f"of 'attention lapses', where focus shifts between being very alert and losing concentration.")
+    elif variability < 80 and total > 10:
+        game_parts.append(
+            f"Your Reaction Time was highly consistent ({variability} ms), suggesting strong sustained attention despite distractions.")
     else:
         game_parts.append(f"You responded to most Go targets correctly ({100-missed_rate*100:.0f}% hit rate).")
 
@@ -536,10 +554,10 @@ def generate_adhd_report(user_data: dict, game_data: dict, prediction: int,
     mean_rt = f"{int(np.mean(rts))} ms" if rts else "N/A"
 
     stat_data = [
-        ["Total Trials", "Hit Rate", "Commission Error Rate", "Mean Reaction Time"],
+        ["Total Trials", "Hit Rate", "RT Variability", "Mean RT"],
         [str(game_data.get('total_trials', 0)),
          f"{hit_rate:.0f}%",
-         f"{commission_rate:.0f}%",
+         f"{variability} ms",
          mean_rt]
     ]
     stat_table = Table(stat_data, colWidths=[4.25*cm]*4)

@@ -40,6 +40,8 @@ def predict(request):
             'missed_go': int(request.POST.get('missed_go', 0)),
             'correct_inhibit': int(request.POST.get('correct_inhibit', 0)),
             'commission_errors': int(request.POST.get('commission_errors', 0)),
+            'distractor_clicks': int(request.POST.get('distractor_clicks', 0)),
+            'rt_variability': float(request.POST.get('rt_variability', 0)),
             'reaction_times': json.loads(request.POST.get('reaction_times', '[]'))
         }
 
