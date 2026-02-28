@@ -1,34 +1,60 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <title>Inattention, Impulsivity Test</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inattention & Impulsivity Test | Clinical Assessment</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   <style>
     body {
-      background-color: black;
-      text-align: center; 
-      color: white;
-      font-family: Arial; }
-    #box {
-      width: 120px;
-      height: 120px;
-      margin: 50px auto;
-      display: none;
-      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow: hidden;
     }
 
-    #startBin{
-      display: block;
+    .game-wrapper {
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    #box {
+      display: none;
+      /* Controlled by JS */
+    }
+
+    .instructions {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 20px 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
     }
   </style>
 </head>
-    <body>
 
-    <h2>Inattention, Impulsivity Test</h2>
-    <p>Click only when the box is GREEN.<br>Do NOT click when RED.</p>
+<body>
+  <div class="game-wrapper fade-in">
+    <div class="glass-card">
+      <h2 class="title-gradient">Cognitive Test</h2>
+      <p class="game-status" id="status">Ready to begin assessment?</p>
 
-    <p id="status">Click Start</p>
-    <button id = "startBtn" onclick="startGame()">Start</button>
-    <div id="box"></div>
-    <script src="/static/game.js"></script>
-    </body>
+      <div class="instructions" id="instructions">
+        <p style="margin-bottom: 10px;">• Click ONLY when the box is <strong style="color: #10b981;">GREEN</strong>.</p>
+        <p>• Do NOT click when the box is <strong style="color: #ef4444;">RED</strong>.</p>
+      </div>
+
+      <button id="startBtn" class="btn btn-primary" style="width: 100%;" onclick="startGame()">Start Test</button>
+      <div id="box"></div>
+    </div>
+  </div>
+  <script src="{% static 'game.js' %}"></script>
+</body>
+
 </html>

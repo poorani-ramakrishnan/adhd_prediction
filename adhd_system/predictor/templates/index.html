@@ -1,216 +1,304 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>ADHD Detection System</title>
-    <script>
-      function openGame() {
-        window.open(
-          "/game/",
-          "gameWindow",
-          "width=500,height=600"
-        );
-      }
-      </script>
-    <style>
-  body {
-    background: linear-gradient(to right, #74ebd5, #acb6e5);
-    font-family: Arial, sans-serif;
-  }
+<html lang="en">
 
-  form {
-    background-color: #ffffff;
-    color: #333;
-    padding: 20px;
-    width: 800px;
-    margin: 40px auto;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  }
-  
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ADHD Assessment System | Professional Screening</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <script>
+    function openGame() {
+      const width = 600;
+      const height = 700;
+      const left = (window.screen.width / 2) - (width / 2);
+      const top = (window.screen.height / 2) - (height / 2);
+      window.open(
+        "/game/",
+        "gameWindow",
+        `width=${width},height=${height},left=${left},top=${top},menubar=no,status=no`
+      );
+    }
+  </script>
+</head>
 
-  .question{
-    font-size:medium;
-    padding: 20px;
-    margin: auto;
-    font-weight: bold;
-  }
-  .answer{
-    font-size:medium;
-    padding: 10px;
-    margin: auto;
-  }
+<body>
+  <div class="container fade-in">
+    <header style="text-align: center; margin-bottom: 40px;">
+      <h1 class="title-gradient" style="font-size: 2.5rem; margin-bottom: 8px;">ADHD Assessment System</h1>
+      <p style="color: var(--text-muted); font-weight: 500;">AI-Powered Behavioral Screening Tool</p>
+    </header>
 
-  #submit {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 25px;
-    font-size: 16px;
-    display: block;
-    margin: 20px auto;
-    cursor: pointer;
-  }
-  .caution {
-  background-color: #fff3cd;
-  border-left: 5px solid #ffc107;
-  padding: 15px;
-  margin-bottom: 20px;
-  color: #856404;
-  font-size: 14px;
-  border-radius: 6px;
-}
+    <div class="glass-card">
+      <div class="alert-warning">
+        <strong>Important Notice:</strong> This assessment is a screening tool designed to provide an initial indication
+        of attention-related patterns. It is <strong>not</strong> a medical diagnosis and should not replace
+        professional evaluation by a qualified healthcare provider.
+      </div>
 
-  #submit:hover {
-    background-color: #218838;
-  }
-</style>
+      <form method="POST" action="" class="assessment-form">
+        {% csrf_token %}
 
-  </head>
-  <body>
-    <h1 align="center">ADHD PREDICTION SYSTEM</h1>
-    <p class = "caution">Important Notice:<br>
-        This assessment is a screening tool designed to provide an initial indication of attention-related patterns based on the responses you provide.
-        It is not a medical diagnosis and should not replace professional evaluation by a qualified healthcare provider.
-        Please answer all questions honestly and thoughtfully.</p>
-    <form method = "POST" action="">
-    {% csrf_token %}
-    <div>
-      <table>
-        <tr>
-          <td class="question">What is your Age? </td>
-          <td class = "answer"><input type = "number" name = "age" id = "age" placeholder = "Age"></td>
-        </tr>
-        <tr>
-          <td class = "question"> What is your Gender? </td>
-          <td class = "answer">
-          <input type="radio" name="Gender" value="Male" required> Male
-          <input type="radio" name="Gender" value="Female"> Female
-          </td>
-        </tr>
-        <tr>
-          <td class = "question">What is your current Education Stage?</td>
-          <td class = "answer">
-            <select name = "EducationStage" required>
-            <option value="">Select</option>
-            <option name = "EducationStage" value = "Child">Child</option>
-            <option name = "EducationStage" value = "Teen">Teen</option>
-            <option name = "EducationStage" value = "Undergrad">Undergrad</option>
-            <option name = "EducationStage" value = "Adult">Adult</option>
-            
-          </select>  
-          </td>
-        </tr>
-      </table>
-      
-      <div>
-        <div class = "question">Staying still for long periods feels uncomfortable for me.</div>
-        <div class = "answer">
-          
-          <input type="radio" name="HyperactivityScore" value="0" required> Strongly Disagree<br>
-          <input type="radio" name="HyperactivityScore" value="1" > Disagree<br>
-          <input type="radio" name="HyperactivityScore" value="2"> Slightly Disagree<br>
-          <input type="radio" name="HyperactivityScore" value="3"> Slightly Agree<br>
-          <input type="radio" name="HyperactivityScore" value="4"> Agree<br>
-          <input type="radio" name="HyperactivityScore" value="5"> Strongly Agree<br>
+        <!-- Basic Information -->
+        <div class="question-group">
+          <h3 class="question-text">Basic Information</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+              <label for="age"
+                style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">Age</label>
+              <input type="number" name="age" id="age" required placeholder="Enter age">
+            </div>
+            <div>
+              <label for="EducationStage"
+                style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">Education
+                Stage</label>
+              <select name="EducationStage" id="EducationStage" required>
+                <option value="">Select Stage</option>
+                <option value="Child">Child</option>
+                <option value="Teen">Teen</option>
+                <option value="Undergrad">Undergrad</option>
+                <option value="Adult">Adult</option>
+              </select>
+            </div>
+          </div>
         </div>
-      </div>
-      
-      <div>
-        <div class = "question">Do you often feel like Day dreaming?</div>
-        <div class = "answer">
-          <input type="radio" name="Daydreaming" value="0" required> No
-          <input type="radio" name="Daydreaming" value="1"> Yes
+
+        <div class="question-group">
+          <p class="question-text">Gender</p>
+          <div class="options-grid">
+            <label class="radio-option">
+              <input type="radio" name="Gender" value="Male" required>
+              <span class="radio-custom">Male</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="Gender" value="Female">
+              <span class="radio-custom">Female</span>
+            </label>
+          </div>
         </div>
-      </div>
-      
-      <div>
-        <div class = "question">Small negative reactions from others affect me more than I expect.</div>
-        <div class = "answer">
-          <input type="radio" name="RSD" value="0" required> No
-          <input type="radio" name="RSD" value="1" > Yes
+
+        <!-- Behavioral Indicators -->
+        <div class="question-group">
+          <p class="question-text">Staying still for long periods feels uncomfortable for me.</p>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+            <label class="radio-option">
+              <input type="radio" name="HyperactivityScore" value="0" required>
+              <span class="radio-custom">Strongly Disagree</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="HyperactivityScore" value="1">
+              <span class="radio-custom">Disagree</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="HyperactivityScore" value="2">
+              <span class="radio-custom">Slightly Disagree</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="HyperactivityScore" value="3">
+              <span class="radio-custom">Slightly Agree</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="HyperactivityScore" value="4">
+              <span class="radio-custom">Agree</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="HyperactivityScore" value="5">
+              <span class="radio-custom">Strongly Agree</span>
+            </label>
+          </div>
         </div>
-      </div>
-      
-      <div>
-        <div class = "question">On most days, how many hours of actual rest do you feel you get at night?</div>
-        <div class = "answer">
-          <input type = "number" name = "SleepHours" step = "any" id = "SleepHours" required placeholder="SleepHours">
+
+        <div class="question-group">
+          <p class="question-text">Do you often feel like day dreaming?</p>
+          <div class="options-grid">
+            <label class="radio-option">
+              <input type="radio" name="DayDreaming" value="0" required>
+              <span class="radio-custom">No</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="DayDreaming" value="1">
+              <span class="radio-custom">Yes</span>
+            </label>
+          </div>
         </div>
-      </div>
-      
-      <div>
-        <div class = "question">Roughly how much time do you spend on your phone or digital devices a day?</div>
-        <div class = "answer">
-          <input type = "number" name = "ScreenTime" step = "any" id = "ScreenTime" required placeholder="ScreenTime">
+
+        <div class="question-group">
+          <p class="question-text">Small negative reactions from others affect me more than I expect.</p>
+          <div class="options-grid">
+            <label class="radio-option">
+              <input type="radio" name="RSD" value="0" required>
+              <span class="radio-custom">No</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="RSD" value="1">
+              <span class="radio-custom">Yes</span>
+            </label>
+          </div>
         </div>
-      </div>
-      
-      
-      <div>
-        <div class = "question">Do you often feel excessively worried, tense, or nervous even when there is no clear reason?</div>
-        <div class = "answer">
-          
-          <input type="radio" name="ComorbidAnxiety" value="1" > Yes
-          <input type="radio" name="ComorbidAnxiety" value="0" required> No
+
+        <!-- Lifestyle & Habits -->
+        <div class="question-group">
+          <h3 class="question-text">Lifestyle & Habits</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+              <label for="SleepHours"
+                style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">Hours of rest
+                at night</label>
+              <input type="number" step="any" name="SleepHours" id="SleepHours" required placeholder="e.g. 7.5">
+            </div>
+            <div>
+              <label for="ScreenTime"
+                style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">Daily Screen
+                Time (hours)</label>
+              <input type="number" step="any" name="ScreenTime" id="ScreenTime" required placeholder="e.g. 4.0">
+            </div>
+          </div>
         </div>
-      </div>
-      
-      <div>
-        <div class = "question">Have you frequently felt low, unmotivated, or lost interest in activities you usually enjoy?</div>
-        <div class = "answer">
-          <input type="radio" name="ComorbidDepression" value="1" > Yes
-          <input type="radio" name="ComorbidDepression" value="0" required> No
+
+        <!-- Mental Health History -->
+        <div class="question-group">
+          <p class="question-text">Do you often feel excessively worried, tense, or nervous?</p>
+          <div class="options-grid">
+            <label class="radio-option">
+              <input type="radio" name="ComorbidAnxiety" value="1">
+              <span class="radio-custom">Yes</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="ComorbidAnxiety" value="0" required>
+              <span class="radio-custom">No</span>
+            </label>
+          </div>
         </div>
-      </div>
-      
-      <div>
-        <div class = "question">Has anyone in your family been diagnosed with ADHD?</div>
-        <div class = "answer">
-          <input type="radio" name="FamilyHistoryADHD" value="1"> Yes
-          <input type="radio" name="FamilyHistoryADHD" value="0" required> No
+
+        <div class="question-group">
+          <p class="question-text">Have you frequently felt low or unmotivated?</p>
+          <div class="options-grid">
+            <label class="radio-option">
+              <input type="radio" name="ComorbidDepression" value="1">
+              <span class="radio-custom">Yes</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="ComorbidDepression" value="0" required>
+              <span class="radio-custom">No</span>
+            </label>
+          </div>
         </div>
-      </div>
-      
-      <div>
-        <div class = "question">Have you received any school or educational support?</div>
-        
-        <div class = "answer">
-          <input type="radio" name="SchoolSupport" value="Accommodations" required> Accommodations (extra time, seating support)<br>
-          <input type="radio" name="SchoolSupport" value="IEP"> IEP(Individualized Education Program-special education support)<br>
-          <input type="radio" name="SchoolSupport" value="Therapy"> Therapy or counseling support<br>
-          <input type="radio" name="SchoolSupport" value="504"> 504 Plan (learning adjustments without special education)<br>
-           <input type="radio" name="SchoolSupport" value="None"> No School Support<br>
-         
+
+        <div class="question-group">
+          <p class="question-text">Family history of ADHD?</p>
+          <div class="options-grid">
+            <label class="radio-option">
+              <input type="radio" name="FamilyHistoryADHD" value="1">
+              <span class="radio-custom">Yes</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="FamilyHistoryADHD" value="0" required>
+              <span class="radio-custom">No</span>
+            </label>
+          </div>
         </div>
-      </div>
-      
-      <div>
-        <div class = "question">Are you currently taking any medication to manage attention or behavioral symptoms?</div>
-        <div class = "answer">
-          <input type="radio" name="Medication" value="Non-stimulant" required> Non-stimulant medication
-          <input type="radio" name="Medication" value="Stimulant"> Stimulant medication
-          <input type="radio" name="Medication" value="No"> No medication
-          
+
+        <!-- Support & Academic -->
+        <div class="question-group">
+          <p class="question-text">School or Educational Support received?</p>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <label class="radio-option">
+              <input type="radio" name="SchoolSupport" value="Accommodations" required>
+              <span class="radio-custom" style="text-align: left;">Accommodations (extra time, seating support)</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="SchoolSupport" value="IEP">
+              <span class="radio-custom" style="text-align: left;">IEP (Individualized Education Program)</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="SchoolSupport" value="Therapy">
+              <span class="radio-custom" style="text-align: left;">Therapy or counseling support</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="SchoolSupport" value="504">
+              <span class="radio-custom" style="text-align: left;">504 Plan (learning adjustments)</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="SchoolSupport" value="None">
+              <span class="radio-custom" style="text-align: left;">No School Support</span>
+            </label>
+          </div>
         </div>
-      </div>
-      
-      <div>
-        <div class = "question">What is/was your average AcademicScore(out of 100%):</div>
-        <div class = "answer"><input type = "number" step = "any"name = "AcademicScore" id = "AcademicScore" placeholder="AcademicScore"></div>
-      </div>
-      <div>
-        <div class = "question">Play the below game to determine your InattentionScore and ImpulsivityScore</div>
-        <div class = "answer">
-          <button type="button" onclick="openGame()">
-          Play Game
+
+        <div class="question-group">
+          <p class="question-text">Medication usage (manage attention/behavior)?</p>
+          <div class="options-grid">
+            <label class="radio-option">
+              <input type="radio" name="Medication" value="Non-stimulant" required>
+              <span class="radio-custom">Non-stimulant</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="Medication" value="Stimulant">
+              <span class="radio-custom">Stimulant</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="Medication" value="No">
+              <span class="radio-custom">No medication</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="question-group">
+          <label for="AcademicScore" class="question-text" style="display: block;">Average Academic Score (out of
+            100%)</label>
+          <input type="number" step="any" name="AcademicScore" id="AcademicScore" placeholder="Enter score 0-100">
+        </div>
+
+        <!-- Interactive Assessment -->
+        <div class="question-group"
+          style="background: rgba(79, 70, 229, 0.1); border-radius: 16px; padding: 24px; border: 1px solid rgba(79, 70, 229, 0.2);">
+          <p class="question-text" style="margin-bottom: 8px;">Interactive Cognitive Test</p>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Use the cognitive game to
+            determine your Inattention and Impulsivity scores.</p>
+          <button type="button" class="btn btn-outline" onclick="openGame()" style="width: 100%;">
+            Start Cognitive Test
           </button>
-          <input type="hidden" name="InattentionScore" id="InattentionScore">
-          <input type="hidden" name="ImpulsivityScore" id="ImpulsivityScore">
+          <input type="hidden" name="InattentionScore" id="InattentionScore" value="0">
+          <input type="hidden" name="ImpulsivityScore" id="ImpulsivityScore" value="0">
+          <!-- Detailed Game Data for Report -->
+          <input type="hidden" name="total_trials" id="total_trials" value="0">
+          <input type="hidden" name="correct_go" id="correct_go" value="0">
+          <input type="hidden" name="missed_go" id="missed_go" value="0">
+          <input type="hidden" name="correct_inhibit" id="correct_inhibit" value="0">
+          <input type="hidden" name="commission_errors" id="commission_errors" value="0">
+          <input type="hidden" name="reaction_times" id="reaction_times" value="[]">
+        </div>
 
-      </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; height: 60px; font-size: 1.2rem;">
+          Submit Assessment
+        </button>
+      </form>
     </div>
-    <button id = "submit">Submit</button>
-    </form>
-  </body>
+
+    <footer
+      style="text-align: center; margin-top: 40px; padding-bottom: 40px; color: var(--text-muted); font-size: 0.85rem;">
+      &copy; 2026 ADHD Prediction System. Powered by Advanced Machine Learning.
+    </footer>
+  </div>
+  <script>
+    document.getElementById("age").addEventListener("input", function () {
+      const age = parseInt(this.value);
+      const stageSelect = document.getElementById("EducationStage");
+
+      if (age <= 12) {
+        stageSelect.value = "Child";
+      }
+      else if (age >= 13 && age <= 18) {
+        stageSelect.value = "Teen";
+      }
+      else if (age >= 19 && age <= 22) {
+        stageSelect.value = "Undergrad";
+      }
+      else {
+        stageSelect.value = "Adult";
+      }
+    });
+  </script>
+</body>
+
 </html>

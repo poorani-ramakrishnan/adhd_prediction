@@ -2198,3 +2198,7 @@ Age,Gender,EducationStage,InattentionScore,HyperactivityScore,ImpulsivityScore,S
 23,Female,Adult,1,2,2,5,0,1,6.9,2.8,1,0,1,No,,83.0,1
 25,Male,Adult,1,1,3,5,0,1,8.9,6.4,0,0,0,Stimulant,,74.4,0
 10,Male,Child,4,1,2,7,0,1,7.1,3.1,0,0,1,Stimulant,,66.3,1
+78,Male,Adult,4,4,0,8,0,1,6.0,1.0,1,0,1,Non-stimulant,504,67.0,1
+67,Female,Adult,0,1,0,1,0,1,8.0,4.0,1,0,0,Non-stimulant,None,89.9,0
+7,Female,Child,0,4,0,4,0,1,9.0,1.0,0,0,0,No,None,78.0,0
+28,Male,Adult,0,1,2,3,1,1,6.0,3.0,0,1,0,Non-stimulant,None,89.0,0

@@ -1,46 +1,59 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>ADHD Prediction Result</title>
-    <style>
-        body {
-    background: linear-gradient(to right, #74ebd5, #acb6e5);
-            text-align: center;
-        }
-        .card {
-            background: white;
-            width: 400px;
-            margin: 100px auto;
-            padding: 30px;
-            border-radius: 10px;
-        }
-        .result {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-        }
-        a {
-            display: inline-block;
-            margin-top: 20px;
-            text-decoration: none;
-            color: white;
-            background: #007bff;
-            padding: 10px 20px;
-            border-radius: 5px;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADHD Assessment Results | Professional Screening</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
+
 <body>
+    <div class="container fade-in" style="max-width: 600px;">
+        <header style="text-align: center; margin-bottom: 40px;">
+            <h1 class="title-gradient" style="font-size: 2.2rem; margin-bottom: 8px;">Assessment Results</h1>
+            <p style="color: var(--text-muted); font-weight: 500;">Clinical Screening Output</p>
+        </header>
 
-<div class="card">
-    <h2>ADHD Detection Result</h2>
+        <div class="glass-card" style="text-align: center;">
+            <div style="margin-bottom: 30px;">
+                <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 15px;">Based on your responses and
+                    cognitive test data:</p>
 
-    <div class="result">
-        {{ result }}
+                {% if "possible signs" in result %}
+                <div class="result-badge badge-positive">
+                    Possible ADHD Patterns Detected
+                </div>
+                {% else %}
+                <div class="result-badge badge-negative">
+                    No Strong ADHD Patterns Detected
+                </div>
+                {% endif %}
+            </div>
+
+            <div
+                style="text-align: left; background: rgba(255, 255, 255, 0.03); border-radius: 16px; padding: 24px; margin-bottom: 30px; border: 1px solid var(--card-border);">
+                <h3 style="font-size: 1.1rem; margin-bottom: 12px; color: var(--text-main);">Clinical Note:</h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+                    {{ result }}
+                </p>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 20px; font-style: italic;">
+                    Please note that this is a statistical probability based on machine learning models and should be
+                    shared with a healthcare professional for a comprehensive clinical diagnosis.
+                </p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <a href="/" class="btn btn-outline">Start New Assessment</a>
+                <a href="/download-report/" class="btn btn-primary">Download Report (PDF)</a>
+            </div>
+        </div>
+
+        <footer style="text-align: center; margin-top: 40px; color: var(--text-muted); font-size: 0.85rem;">
+            Generated on {% now "F j, Y, P" %}
+        </footer>
     </div>
-
-    <a href="/">Go Back</a>
-</div>
-
 </body>
+
 </html>
