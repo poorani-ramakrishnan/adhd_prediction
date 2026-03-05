@@ -101,7 +101,8 @@ def predict(request):
                 'AcademicScore': user_data_raw['AcademicScore'],
             },
             'game_data': game_data,
-            'prediction': prediction
+            'prediction': prediction,
+            'user_name': request.POST.get('full_name', 'User')
         }
 
         # result_text = "There are possible signs of ADHD from your answers." if prediction == 1 else "You might not have ADHD"
@@ -154,7 +155,8 @@ def download_report(request):
         pdf_bytes = generate_adhd_report(
             data['user_data'], 
             data['game_data'], 
-            data['prediction']
+            data['prediction'],
+            user_name=data.get('user_name', 'User')
         )
         response = HttpResponse(pdf_bytes, content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="ADHD_Assessment_Report.pdf"'
