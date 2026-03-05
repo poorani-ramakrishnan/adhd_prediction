@@ -135,7 +135,6 @@ def _chart_symptom_scores(user_data):
 
 
 def _chart_lifestyle(user_data):
-    """Grouped bar chart for lifestyle indicators."""
     keys   = LIFESTYLE_KEYS
     labels = [THRESHOLDS[k]["label"] for k in keys]
     values = [user_data.get(k, 0) for k in keys]
@@ -159,15 +158,8 @@ def _chart_lifestyle(user_data):
 
 
 def _chart_go_nogo(game_data):
-    """
-    Visualise Go/No-Go game results.
-    game_data keys:
-        total_trials, correct_go, missed_go, correct_inhibit,
-        commission_errors (clicked on No-Go), reaction_times (list of ms values)
-    """
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 3.5))
 
-    # ── Pie: accuracy breakdown ──────────────────────────────────────────────
     labels  = ['Correct Go', 'Missed Go', 'Correct Inhibit', 'Commission Errors']
     sizes   = [
         game_data.get('correct_go', 0),

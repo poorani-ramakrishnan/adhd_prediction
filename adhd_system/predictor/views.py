@@ -18,7 +18,7 @@ def predict(request):
             'age': int(request.POST.get('age', 0)),
             'Gender': request.POST.get('Gender'),
             'EducationStage': request.POST.get('EducationStage'),
-            'HyperactivityScore': int(request.POST.get('HyperactivityScore', 0)),
+            'HyperactivityScore': float(request.POST.get('HyperactivityScore', 0)),
             'DayDreaming': int(request.POST.get('DayDreaming', 0)),
             'RSD': int(request.POST.get('RSD', 0)),
             'SleepHours': float(request.POST.get('SleepHours', 0)),
@@ -29,8 +29,8 @@ def predict(request):
             'SchoolSupport': request.POST.get('SchoolSupport'),
             'Medication': request.POST.get('Medication'),
             'AcademicScore': float(request.POST.get('AcademicScore', 0)),
-            'InattentionScore': int(request.POST.get('InattentionScore', 0)),
-            'ImpulsivityScore': int(request.POST.get('ImpulsivityScore', 0)),
+            'InattentionScore': float(request.POST.get('InattentionScore', 0)),
+            'ImpulsivityScore': float(request.POST.get('ImpulsivityScore', 0)),
         }
 
         # Game data for the detailed report
@@ -104,7 +104,7 @@ def predict(request):
             'prediction': prediction
         }
 
-        result_text = "There are possible signs of ADHD from your answers." if prediction == 1 else "You might not have ADHD"
+        # result_text = "There are possible signs of ADHD from your answers." if prediction == 1 else "You might not have ADHD"
 
         try:
             # Move up two levels from views.py (predictor -> adhd_system -> root) to find ml directory
@@ -141,7 +141,7 @@ def predict(request):
             # Log to console for the developer to see
             print(f"Error saving to dataset: {e}")
 
-        return render(request, "result.html", {"result": result_text})
+        return render(request, "result.html", {"prediction": prediction})
     
     return render(request, "index.html")
 

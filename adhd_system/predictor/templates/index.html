@@ -5,8 +5,150 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ADHD Assessment System | Professional Screening</title>
+  <title>ADHD Assessment System | Comprehensive Screening</title>
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <style>
+    /* Sidebar & layout additions - preserving original colors and design */
+    .app-wrapper {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Enhanced sidebar with glassmorphism and cuter design */
+    .sidebar {
+      width: 260px;
+      background: rgba(59, 130, 246, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-right: 1px solid var(--card-border, rgba(0, 0, 0, 0.1));
+      box-shadow: 2px 0 20px rgba(0, 0, 0, 0.05);
+      padding: 2rem 1rem;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+      color: var(--text-main, #111827);
+    }
+
+    .sidebar h3 {
+      color: var(--text-main, #111827);
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--primary, #3b82f6);
+      font-weight: 600;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar li {
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      color: var(--text-main, #111827);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      font-size: 0.95rem;
+    }
+
+    .sidebar a:hover {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.2);
+      color: var(--primary, #3b82f6);
+    }
+
+    .sidebar a.active {
+      background: var(--primary, #3b82f6);
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      padding: 2rem;
+      max-width: calc(100% - 260px);
+    }
+
+    /* progress bar container */
+    .progress-container {
+      width: 100%;
+      background-color: #e0e0e0;
+      border-radius: 25px;
+      margin: 20px 0 30px;
+      height: 20px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 25px;
+      width: 0%;
+      transition: width 0.3s ease;
+      position: relative;
+      color: white;
+      font-size: 0.75rem;
+      line-height: 20px;
+      padding-left: 8px;
+      box-sizing: border-box;
+    }
+
+    /* section navigation buttons */
+    .section-nav {
+      display: flex;
+      justify-content: space-between;
+      margin: 30px 0 20px;
+    }
+
+    .nav-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      font-size: 1rem;
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: #95a5a6;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    /* hide all sections initially, then show active via JS */
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    /* keep original container styling but adjust for new layout */
+    .container.fade-in {
+      max-width: 100%;
+      padding: 0;
+      margin: 0;
+    }
+  </style>
   <script>
     function openGame() {
       const width = 600;
@@ -19,283 +161,743 @@
         `width=${width},height=${height},left=${left},top=${top},menubar=no,status=no`
       );
     }
+
+    // Modified to scale scores to 0-5 range
+    function calculateScores() {
+      // Calculate raw InattentionScore (9 questions, 0-2 each => max 18)
+      let inattentionRaw = 0;
+      for (let i = 1; i <= 9; i++) {
+        const value = document.querySelector(`input[name="inattention_q${i}"]:checked`);
+        if (value) inattentionRaw += parseInt(value.value);
+      }
+      // Scale to 0-5: raw * 5/18
+      let inattentionScaled = (inattentionRaw * 5 / 18).toFixed(2);
+      document.getElementById('InattentionScore').value = inattentionScaled;
+
+      // Calculate raw HyperactivityScore (9 questions, 0-2 each => max 18)
+      let hyperactivityRaw = 0;
+      for (let i = 1; i <= 9; i++) {
+        const value = document.querySelector(`input[name="hyperactivity_q${i}"]:checked`);
+        if (value) hyperactivityRaw += parseInt(value.value);
+      }
+      let hyperactivityScaled = (hyperactivityRaw * 5 / 18).toFixed(2);
+      document.getElementById('HyperactivityScore').value = hyperactivityScaled;
+
+      // ImpulsivityScore is assumed already in 0-5 from game; keep as is
+      // No change to other hidden fields
+    }
+
+    // Section navigation and progress bar
+    document.addEventListener('DOMContentLoaded', function () {
+      const sections = document.querySelectorAll('.section');
+      const navLinks = document.querySelectorAll('.sidebar a');
+      const nextBtn = document.getElementById('nextBtn');
+      const backBtn = document.getElementById('backBtn');
+      const progressBar = document.getElementById('progressBar');
+      let currentSection = 0;
+      const totalSections = sections.length;
+
+      function updateDisplay() {
+        // Show active section
+        sections.forEach((sec, idx) => {
+          sec.classList.toggle('active', idx === currentSection);
+        });
+
+        // Update sidebar active class
+        navLinks.forEach((link, idx) => {
+          link.classList.toggle('active', idx === currentSection);
+        });
+
+        // Update buttons
+        backBtn.disabled = currentSection === 0;
+        nextBtn.disabled = currentSection === totalSections - 1;
+
+        // Update progress bar (completed = currentSection index, since first is 0 but we show progress based on completed sections)
+        // For bar width: (currentSection+1)/totalSections * 100%
+        const percent = ((currentSection + 1) / totalSections * 100).toFixed(0);
+        progressBar.style.width = percent + '%';
+        progressBar.textContent = percent + '%';
+      }
+
+      // Click on sidebar links
+      navLinks.forEach((link, idx) => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          currentSection = idx;
+          updateDisplay();
+        });
+      });
+
+      // Next button
+      nextBtn.addEventListener('click', () => {
+        if (currentSection < totalSections - 1) {
+          currentSection++;
+          updateDisplay();
+        }
+      });
+
+      // Back button
+      backBtn.addEventListener('click', () => {
+        if (currentSection > 0) {
+          currentSection--;
+          updateDisplay();
+        }
+      });
+
+      // Initial display
+      updateDisplay();
+    });
   </script>
 </head>
 
 <body>
-  <div class="container fade-in">
-    <header style="text-align: center; margin-bottom: 40px;">
-      <h1 class="title-gradient" style="font-size: 2.5rem; margin-bottom: 8px;">ADHD Assessment System</h1>
-      <p style="color: var(--text-muted); font-weight: 500;">AI-Powered Behavioral Screening Tool</p>
-    </header>
-
-    <div class="glass-card">
-      <div class="alert-warning">
-        <strong>Important Notice:</strong> This assessment is a screening tool designed to provide an initial indication
-        of attention-related patterns. It is <strong>not</strong> a medical diagnosis and should not replace
-        professional evaluation by a qualified healthcare provider.
-      </div>
-
-      <form method="POST" action="" class="assessment-form">
-        {% csrf_token %}
-
-        <!-- Basic Information -->
-        <div class="question-group">
-          <h3 class="question-text">Basic Information</h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div>
-              <label for="age"
-                style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">Age</label>
-              <input type="number" name="age" id="age" required placeholder="Enter age">
-            </div>
-            <div>
-              <label for="EducationStage"
-                style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">Education
-                Stage</label>
-              <select name="EducationStage" id="EducationStage" required>
-                <option value="">Select Stage</option>
-                <option value="Child">Child</option>
-                <option value="Teen">Teen</option>
-                <option value="Undergrad">Undergrad</option>
-                <option value="Adult">Adult</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="question-group">
-          <p class="question-text">Gender</p>
-          <div class="options-grid">
-            <label class="radio-option">
-              <input type="radio" name="Gender" value="Male" required>
-              <span class="radio-custom">Male</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="Gender" value="Female">
-              <span class="radio-custom">Female</span>
-            </label>
-          </div>
-        </div>
-
-        <!-- Behavioral Indicators -->
-        <div class="question-group">
-          <p class="question-text">Staying still for long periods feels uncomfortable for me.</p>
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-            <label class="radio-option">
-              <input type="radio" name="HyperactivityScore" value="0" required>
-              <span class="radio-custom">Strongly Disagree</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="HyperactivityScore" value="1">
-              <span class="radio-custom">Disagree</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="HyperactivityScore" value="2">
-              <span class="radio-custom">Slightly Disagree</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="HyperactivityScore" value="3">
-              <span class="radio-custom">Slightly Agree</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="HyperactivityScore" value="4">
-              <span class="radio-custom">Agree</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="HyperactivityScore" value="5">
-              <span class="radio-custom">Strongly Agree</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="question-group">
-          <p class="question-text">Do you often feel like day dreaming?</p>
-          <div class="options-grid">
-            <label class="radio-option">
-              <input type="radio" name="DayDreaming" value="0" required>
-              <span class="radio-custom">No</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="DayDreaming" value="1">
-              <span class="radio-custom">Yes</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="question-group">
-          <p class="question-text">Small negative reactions from others affect me more than I expect.</p>
-          <div class="options-grid">
-            <label class="radio-option">
-              <input type="radio" name="RSD" value="0" required>
-              <span class="radio-custom">No</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="RSD" value="1">
-              <span class="radio-custom">Yes</span>
-            </label>
-          </div>
-        </div>
-
-        <!-- Lifestyle & Habits -->
-        <div class="question-group">
-          <h3 class="question-text">Lifestyle & Habits</h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div>
-              <label for="SleepHours"
-                style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">Hours of rest
-                at night</label>
-              <input type="number" step="any" name="SleepHours" id="SleepHours" required placeholder="e.g. 7.5">
-            </div>
-            <div>
-              <label for="ScreenTime"
-                style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">Daily Screen
-                Time (hours)</label>
-              <input type="number" step="any" name="ScreenTime" id="ScreenTime" required placeholder="e.g. 4.0">
-            </div>
-          </div>
-        </div>
-
-        <!-- Mental Health History -->
-        <div class="question-group">
-          <p class="question-text">Do you often feel excessively worried, tense, or nervous?</p>
-          <div class="options-grid">
-            <label class="radio-option">
-              <input type="radio" name="ComorbidAnxiety" value="1">
-              <span class="radio-custom">Yes</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="ComorbidAnxiety" value="0" required>
-              <span class="radio-custom">No</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="question-group">
-          <p class="question-text">Have you frequently felt low or unmotivated?</p>
-          <div class="options-grid">
-            <label class="radio-option">
-              <input type="radio" name="ComorbidDepression" value="1">
-              <span class="radio-custom">Yes</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="ComorbidDepression" value="0" required>
-              <span class="radio-custom">No</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="question-group">
-          <p class="question-text">Family history of ADHD?</p>
-          <div class="options-grid">
-            <label class="radio-option">
-              <input type="radio" name="FamilyHistoryADHD" value="1">
-              <span class="radio-custom">Yes</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="FamilyHistoryADHD" value="0" required>
-              <span class="radio-custom">No</span>
-            </label>
-          </div>
-        </div>
-
-        <!-- Support & Academic -->
-        <div class="question-group">
-          <p class="question-text">School or Educational Support received?</p>
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <label class="radio-option">
-              <input type="radio" name="SchoolSupport" value="Accommodations" required>
-              <span class="radio-custom" style="text-align: left;">Accommodations (extra time, seating support)</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="SchoolSupport" value="IEP">
-              <span class="radio-custom" style="text-align: left;">IEP (Individualized Education Program)</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="SchoolSupport" value="Therapy">
-              <span class="radio-custom" style="text-align: left;">Therapy or counseling support</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="SchoolSupport" value="504">
-              <span class="radio-custom" style="text-align: left;">504 Plan (learning adjustments)</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="SchoolSupport" value="None">
-              <span class="radio-custom" style="text-align: left;">No School Support</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="question-group">
-          <p class="question-text">Medication usage (manage attention/behavior)?</p>
-          <div class="options-grid">
-            <label class="radio-option">
-              <input type="radio" name="Medication" value="Non-stimulant" required>
-              <span class="radio-custom">Non-stimulant</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="Medication" value="Stimulant">
-              <span class="radio-custom">Stimulant</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="Medication" value="No">
-              <span class="radio-custom">No medication</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="question-group">
-          <label for="AcademicScore" class="question-text" style="display: block;">Average Academic Score (out of
-            100%)</label>
-          <input type="number" step="any" name="AcademicScore" id="AcademicScore" placeholder="Enter score 0-100">
-        </div>
-
-        <!-- Interactive Assessment -->
-        <div class="question-group"
-          style="background: rgba(79, 70, 229, 0.1); border-radius: 16px; padding: 24px; border: 1px solid rgba(79, 70, 229, 0.2);">
-          <p class="question-text" style="margin-bottom: 8px;">Interactive Cognitive Test</p>
-          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Use the cognitive game to
-            determine your Inattention and Impulsivity scores.</p>
-          <button type="button" class="btn btn-outline" onclick="openGame()" style="width: 100%;">
-            Start Cognitive Test
-          </button>
-          <input type="hidden" name="InattentionScore" id="InattentionScore" value="0">
-          <input type="hidden" name="ImpulsivityScore" id="ImpulsivityScore" value="0">
-          <!-- Detailed Game Data for Report -->
-          <input type="hidden" name="total_trials" id="total_trials" value="0">
-          <input type="hidden" name="correct_go" id="correct_go" value="0">
-          <input type="hidden" name="missed_go" id="missed_go" value="0">
-          <input type="hidden" name="correct_inhibit" id="correct_inhibit" value="0">
-          <input type="hidden" name="commission_errors" id="commission_errors" value="0">
-          <input type="hidden" name="reaction_times" id="reaction_times" value="[]">
-        </div>
-
-        <button type="submit" class="btn btn-primary" style="width: 100%; height: 60px; font-size: 1.2rem;">
-          Submit Assessment
-        </button>
-      </form>
+  <div class="app-wrapper">
+    <!-- Sidebar with enhanced cuter design -->
+    <div class="sidebar">
+      <h3>Assessment Sections</h3>
+      <ul>
+        <li><a href="#" class="active">1. Basic Information</a></li>
+        <li><a href="#">2. Attention & Focus</a></li>
+        <li><a href="#">3. Hyperactivity</a></li>
+        <li><a href="#">4. Behavioral Indicators</a></li>
+        <li><a href="#">5. Lifestyle & Habits</a></li>
+        <li><a href="#">6. Mental Health History</a></li>
+        <li><a href="#">7. Educational Support</a></li>
+        <li><a href="#">8. Cognitive Assessment</a></li>
+      </ul>
     </div>
 
-    <footer
-      style="text-align: center; margin-top: 40px; padding-bottom: 40px; color: var(--text-muted); font-size: 0.85rem;">
-      &copy; 2026 ADHD Prediction System. Powered by Advanced Machine Learning.
-    </footer>
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="container fade-in">
+        <header style="text-align: center; margin-bottom: 40px;">
+          <h1 class="title-gradient" style="font-size: 2.5rem; margin-bottom: 8px;">Comprehensive ADHD Assessment</h1>
+          <p style="color: var(--text-muted); font-weight: 500;">Detailed Behavioral & Cognitive Screening Tool</p>
+
+        </header>
+
+        <!-- Progress bar added -->
+        <div class="progress-container">
+          <div class="progress-bar" id="progressBar">0%</div>
+        </div>
+
+        <div class="glass-card">
+          <div class="alert-warning">
+            <strong>Important Notice:</strong> This comprehensive assessment is a screening tool designed to provide an
+            in-depth evaluation of attention-related patterns. It is <strong>not</strong> a medical diagnosis and should
+            not
+            replace professional evaluation by a qualified healthcare provider. This assessment takes approximately
+            15-20
+            minutes to complete.
+          </div>
+          <!-- {% url 'predict' %} -->
+          <form method="POST" action="" class="assessment-form" onsubmit="calculateScores()">
+            {% csrf_token %}
+
+            <!-- ========== SECTION 1: BASIC INFORMATION ========== -->
+            <div class="section" id="section1">
+              <div class="question-group"
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                <h2 style="color: white; margin: 0; font-size: 1.5rem;">Section 1: Basic Information</h2>
+              </div>
+
+              <div class="question-group">
+                <h3 class="question-text">Personal Details</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                  <div>
+                    <label for="age"
+                      style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">
+                      Age
+                    </label>
+                    <input type="number" name="age" id="age" required placeholder="Enter age" min="5" max="100">
+                  </div>
+                  <div>
+                    <label for="EducationStage"
+                      style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">
+                      Education Stage
+                    </label>
+                    <select name="EducationStage" id="EducationStage" required>
+                      <option value="">Select Stage</option>
+                      <option value="Child">Child (5-12 years)</option>
+                      <option value="Teen">Teen (13-18 years)</option>
+                      <option value="Undergrad">Undergraduate (19-22 years)</option>
+                      <option value="Adult">Adult (23+ years)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="question-group">
+                <p class="question-text">Gender</p>
+                <div class="options-grid">
+                  <label class="radio-option">
+                    <input type="radio" name="Gender" value="Male" required>
+                    <span class="radio-custom">Male</span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="Gender" value="Female">
+                    <span class="radio-custom">Female</span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="Gender" value="Nonbinary">
+                    <span class="radio-custom">Non-binary</span>
+                  </label>
+                </div>
+              </div>
+            </div> <!-- end section1 -->
+
+            <!-- ========== SECTION 2: ATTENTION DEFICIT SYMPTOMS (A1-A9) ========== -->
+            <div class="section" id="section2">
+              <div class="question-group"
+                style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px; margin-top: 40px;">
+                <h2 style="color: white; margin: 0; font-size: 1.5rem;">Section 2: Attention & Focus (9 Questions)</h2>
+                <p style="color: white; margin-top: 8px; font-size: 0.9rem;">Rate how often these occur in your daily
+                  life</p>
+              </div>
+
+              <!-- A1 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q1:</strong> Do you often fail to give close attention to details, or
+                  make careless mistakes in your work, schoolwork, or during other activities?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Not reading
+                  instructions carefully, working too quickly and making mistakes, missing important details</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="inattention_q1" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q1" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q1" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- A2 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q2:</strong> Do you often find it difficult to sustain your attention
+                  during tasks or activities?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Can't keep attention
+                  on tasks for long, quickly distracted by your own thoughts, hard to watch a film or read a book to the
+                  end</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="inattention_q2" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q2" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q2" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- A3 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q3:</strong> Does it often seem as though you are not listening when
+                  someone speaks to you directly?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Dreamy or
+                  preoccupied, difficulty concentrating on conversations, not knowing what was said afterward</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="inattention_q3" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q3" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q3" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- A4 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q4:</strong> Do you often fail to follow through on instructions and
+                  fail to finish tasks or meet obligations?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Start things but
+                  don't complete them, difficulty completing tasks once novelty wears off, need deadlines</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="inattention_q4" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q4" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q4" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- A5 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q5:</strong> Do you often find it difficult to organize tasks and
+                  activities?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Difficulty planning
+                  daily life, disorganized space, arriving late, poor time management, double-booking</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="inattention_q5" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q5" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q5" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- A6 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q6:</strong> Do you often avoid or have an aversion to tasks that
+                  require sustained mental effort?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Postpone boring or
+                  difficult tasks, do easy things first, avoid paperwork or reading</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="inattention_q6" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q6" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q6" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- A7 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q7:</strong> Do you often lose things that are necessary for tasks or
+                  activities?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Misplace
+                  wallet/keys, lose papers, spend time searching for things, leave things behind</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="inattention_q7" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q7" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q7" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- A8 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q8:</strong> Are you often easily distracted by external stimuli or
+                  unrelated thoughts?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Easily distracted by
+                  noises/events, difficulty filtering information, hard to pick up the thread again</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="inattention_q8" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q8" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q8" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- A9 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q9:</strong> Are you often forgetful in daily activities?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Forget appointments,
+                  need frequent reminders, return home for forgotten things, forget to check agenda</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="inattention_q9" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q9" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="inattention_q9" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+            </div> <!-- end section2 -->
+
+            <!-- ========== SECTION 3: HYPERACTIVITY SYMPTOMS ========== -->
+            <div class="section" id="section3">
+              <div class="question-group"
+                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px; margin-top: 40px;">
+                <h2 style="color: white; margin: 0; font-size: 1.5rem;">Section 3: Hyperactivity & Restlessness (9
+                  Questions)</h2>
+                <p style="color: white; margin-top: 8px; font-size: 0.9rem;">Rate how often these occur in your daily
+                  life</p>
+              </div>
+
+              <!-- H1-H9 (questions 10-18) -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q10:</strong> Do you often fidget with your hands or feet, or squirm in
+                  your seat?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Difficulty sitting
+                  still, tapping pen, playing with things, fiddling with hair, biting nails</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q1" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q1" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q1" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- H2 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q11:</strong> Do you often stand up in situations where remaining
+                  seated is expected?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Avoid long
+                  meetings/lectures, prefer walking around, never sit still for long, make excuses to move</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q2" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q2" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q2" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- H3 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q12:</strong> Do you often feel restless or have difficulty relaxing?
+                </p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Feel restless
+                  inside, constantly need to be doing something, hard to relax, feel agitated</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q3" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q3" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q3" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- H4 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q13:</strong> Do you often have difficulty engaging in leisure
+                  activities quietly?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Being loud in
+                  various situations, talking during activities, difficulty doing things quietly</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q4" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q4" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q4" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- H5 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q14:</strong> Are you often "on the go" or act as if "driven by a
+                  motor"?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Always busy doing
+                  something, too much energy, constantly on the move, excessively driven</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q5" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q5" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q5" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- H6 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q15:</strong> Do you often talk excessively?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Known as talkative,
+                  hard to stop talking, tendency to talk too much, not letting others speak</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q6" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q6" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q6" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- H7 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q16:</strong> Do you often blurt out answers before questions have been
+                  completed?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Saying what you
+                  think immediately, giving answers before others finish speaking, completing others' words</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q7" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q7" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q7" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- H8 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q17:</strong> Do you often have difficulty waiting your turn?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Difficulty waiting
+                  in queues, impatient in traffic, can't wait turn in conversations, being impatient</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q8" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q8" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q8" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+              <!-- H9 -->
+              <div class="question-group">
+                <p class="question-text"><strong>Q18:</strong> Do you often interrupt or intrude on others?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Examples: Quick to interfere,
+                  interrupts others, disturbs activities without being asked, has opinions on everything</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px;">
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q9" value="0" required><span
+                      class="radio-custom">Never / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q9" value="1"><span
+                      class="radio-custom">Sometimes</span></label>
+                  <label class="radio-option"><input type="radio" name="hyperactivity_q9" value="2"><span
+                      class="radio-custom">Often / Very Often</span></label>
+                </div>
+              </div>
+            </div> <!-- end section3 -->
+
+            <!-- ========== SECTION 4: ADDITIONAL BEHAVIORAL INDICATORS ========== -->
+            <div class="section" id="section4">
+              <div class="question-group"
+                style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px; margin-top: 40px;">
+                <h2 style="color: white; margin: 0; font-size: 1.5rem;">Section 4: Additional Behavioral Indicators</h2>
+              </div>
+
+              <div class="question-group">
+                <p class="question-text">Do you often feel like daydreaming or find your mind wandering?</p>
+                <div class="options-grid">
+                  <label class="radio-option"><input type="radio" name="DayDreaming" value="0" required><span
+                      class="radio-custom">No / Rarely</span></label>
+                  <label class="radio-option"><input type="radio" name="DayDreaming" value="1"><span
+                      class="radio-custom">Yes / Often</span></label>
+                </div>
+              </div>
+
+              <div class="question-group">
+                <p class="question-text">Are you extremely sensitive to criticism or rejection? (Rejection Sensitive
+                  Dysphoria)</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Small negative reactions from
+                  others affect you more intensely than expected</p>
+                <div class="options-grid">
+                  <label class="radio-option"><input type="radio" name="RSD" value="0" required><span
+                      class="radio-custom">No / Not particularly</span></label>
+                  <label class="radio-option"><input type="radio" name="RSD" value="1"><span class="radio-custom">Yes /
+                      Very sensitive</span></label>
+                </div>
+              </div>
+            </div> <!-- end section4 -->
+
+            <!-- ========== SECTION 5: LIFESTYLE & HABITS ========== -->
+            <div class="section" id="section5">
+              <div class="question-group"
+                style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px; margin-top: 40px;">
+                <h2 style="color: #333; margin: 0; font-size: 1.5rem;">Section 5: Lifestyle & Daily Habits</h2>
+              </div>
+
+              <div class="question-group">
+                <h3 class="question-text">Sleep & Screen Time</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                  <div>
+                    <label for="SleepHours"
+                      style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">Average
+                      hours of sleep per night</label>
+                    <input type="number" step="0.5" name="SleepHours" id="SleepHours" required placeholder="e.g. 7.5"
+                      min="0" max="24">
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Recommended: 7-9 hours for
+                      adults</p>
+                  </div>
+                  <div>
+                    <label for="ScreenTime"
+                      style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">Daily
+                      recreational screen time (hours)</label>
+                    <input type="number" step="0.5" name="ScreenTime" id="ScreenTime" required placeholder="e.g. 4.0"
+                      min="0" max="24">
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Phone, TV, gaming, social
+                      media</p>
+                  </div>
+                </div>
+              </div>
+            </div> <!-- end section5 -->
+
+            <!-- ========== SECTION 6: MENTAL HEALTH HISTORY ========== -->
+            <div class="section" id="section6">
+              <div class="question-group"
+                style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px; margin-top: 40px;">
+                <h2 style="color: #333; margin: 0; font-size: 1.5rem;">Section 6: Mental Health & Medical History</h2>
+              </div>
+
+              <div class="question-group">
+                <p class="question-text">Do you frequently experience excessive worry, tension, or nervousness?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Generalized anxiety, panic
+                  attacks, social anxiety, or persistent worrying</p>
+                <div class="options-grid">
+                  <label class="radio-option"><input type="radio" name="ComorbidAnxiety" value="1"><span
+                      class="radio-custom">Yes</span></label>
+                  <label class="radio-option"><input type="radio" name="ComorbidAnxiety" value="0" required><span
+                      class="radio-custom">No</span></label>
+                </div>
+              </div>
+
+              <div class="question-group">
+                <p class="question-text">Have you frequently felt persistently sad, down, or unmotivated?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Low mood, loss of interest,
+                  hopelessness, lack of energy</p>
+                <div class="options-grid">
+                  <label class="radio-option"><input type="radio" name="ComorbidDepression" value="1"><span
+                      class="radio-custom">Yes</span></label>
+                  <label class="radio-option"><input type="radio" name="ComorbidDepression" value="0" required><span
+                      class="radio-custom">No</span></label>
+                </div>
+              </div>
+
+              <div class="question-group">
+                <p class="question-text">Is there a family history of ADHD?</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Parents, siblings, or close
+                  relatives diagnosed with or showing signs of ADHD</p>
+                <div class="options-grid">
+                  <label class="radio-option"><input type="radio" name="FamilyHistoryADHD" value="1"><span
+                      class="radio-custom">Yes</span></label>
+                  <label class="radio-option"><input type="radio" name="FamilyHistoryADHD" value="0" required><span
+                      class="radio-custom">No / Not sure</span></label>
+                </div>
+              </div>
+            </div> <!-- end section6 -->
+
+            <!-- ========== SECTION 7: EDUCATIONAL SUPPORT ========== -->
+            <div class="section" id="section7">
+              <div class="question-group"
+                style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px; margin-top: 40px;">
+                <h2 style="color: #333; margin: 0; font-size: 1.5rem;">Section 7: Educational Support & Performance</h2>
+              </div>
+
+              <div class="question-group">
+                <p class="question-text">Have you received or are you currently receiving any educational support or
+                  accommodations?</p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                  <label class="radio-option"><input type="radio" name="SchoolSupport" value="Accommodations"
+                      required><span class="radio-custom" style="text-align: left;">Accommodations (extra time,
+                      preferred seating, note-taking support)</span></label>
+                  <label class="radio-option"><input type="radio" name="SchoolSupport" value="IEP"><span
+                      class="radio-custom" style="text-align: left;">IEP - Individualized Education
+                      Program</span></label>
+                  <label class="radio-option"><input type="radio" name="SchoolSupport" value="Therapy"><span
+                      class="radio-custom" style="text-align: left;">Therapy, counseling, or behavioral
+                      support</span></label>
+                  <label class="radio-option"><input type="radio" name="SchoolSupport" value="504"><span
+                      class="radio-custom" style="text-align: left;">504 Plan (learning adjustments and
+                      modifications)</span></label>
+                  <label class="radio-option"><input type="radio" name="SchoolSupport" value="None"><span
+                      class="radio-custom" style="text-align: left;">No educational support received</span></label>
+                </div>
+              </div>
+
+              <div class="question-group">
+                <p class="question-text">Are you currently taking or have you taken medication to manage attention or
+                  behavior?</p>
+                <div class="options-grid">
+                  <label class="radio-option"><input type="radio" name="Medication" value="Stimulant" required><span
+                      class="radio-custom">Stimulant (e.g., Adderall, Ritalin, Vyvanse)</span></label>
+                  <label class="radio-option"><input type="radio" name="Medication" value="Non-stimulant"><span
+                      class="radio-custom">Non-stimulant (e.g., Strattera, Intuniv)</span></label>
+                  <label class="radio-option"><input type="radio" name="Medication" value="No"><span
+                      class="radio-custom">No medication</span></label>
+                </div>
+              </div>
+
+              <div class="question-group">
+                <label for="AcademicScore" class="question-text" style="display: block;">What is your average academic
+                  performance score or grade percentage?</label>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; margin-bottom: 12px;">Convert
+                  letter grades to percentages: A=90-100, B=80-89, C=70-79, D=60-69, F=0-59</p>
+                <input type="number" step="0.1" name="AcademicScore" id="AcademicScore" required
+                  placeholder="Enter score 0-100" min="0" max="100">
+              </div>
+            </div> <!-- end section7 -->
+
+            <!-- ========== SECTION 8: COGNITIVE ASSESSMENT GAME + SUBMIT ========== -->
+            <div class="section" id="section8">
+              <div class="question-group"
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px; margin-top: 40px;">
+                <h2 style="color: white; margin: 0; font-size: 1.5rem;">Section 8: Interactive Cognitive Assessment</h2>
+                <p style="color: white; margin-top: 8px; font-size: 0.9rem;">Go/No-Go Task - Measures attention and
+                  impulse control</p>
+              </div>
+
+              <div class="question-group"
+                style="background: rgba(79, 70, 229, 0.1); border-radius: 16px; padding: 24px; border: 2px solid rgba(79, 70, 229, 0.3);">
+                <p class="question-text" style="margin-bottom: 8px;">Complete the Cognitive Performance Test</p>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+                  This computerized test measures your attention span and impulse control through a reaction-time game.
+                  The test takes approximately 3-5 minutes to complete and provides objective measurements of:
+                </p>
+                <ul style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; padding-left: 20px;">
+                  <li>Sustained attention (ability to maintain focus)</li>
+                  <li>Impulsivity (tendency to respond without thinking)</li>
+                  <li>Response time variability</li>
+                  <li>Inhibitory control</li>
+                </ul>
+                <button type="button" class="btn btn-outline" onclick="openGame()" style="width: 100%;">
+                  Launch Cognitive Test
+                </button>
+
+                <!-- Hidden fields for game scores -->
+                <input type="hidden" name="InattentionScore" id="InattentionScore" value="0">
+                <input type="hidden" name="HyperactivityScore" id="HyperactivityScore" value="0">
+                <input type="hidden" name="ImpulsivityScore" id="ImpulsivityScore" value="0">
+                <input type="hidden" name="total_trials" id="total_trials" value="0">
+                <input type="hidden" name="correct_go" id="correct_go" value="0">
+                <input type="hidden" name="missed_go" id="missed_go" value="0">
+                <input type="hidden" name="correct_inhibit" id="correct_inhibit" value="0">
+                <input type="hidden" name="commission_errors" id="commission_errors" value="0">
+                <input type="hidden" name="reaction_times" id="reaction_times" value="[]">
+
+                <div id="game-completion-status"
+                  style="margin-top: 16px; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px; display: none;">
+                  <p style="color: #16a34a; font-weight: 600; margin: 0;">Cognitive test completed successfully!</p>
+                </div>
+              </div>
+
+              <!-- Progress indicator (kept original) -->
+              <div
+                style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-top: 30px; margin-bottom: 20px;">
+                <p style="text-align: center; color: #64748b; margin: 0;">
+                  <strong>Assessment Progress:</strong> You've completed all sections!<br>
+                  <span style="font-size: 0.9rem;">Review your answers and click Submit when ready</span>
+                </p>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="width: 100%; height: 60px; font-size: 1.2rem;">
+                Submit Comprehensive Assessment
+              </button>
+            </div> <!-- end section8 -->
+
+            <!-- Section navigation buttons -->
+            <div class="section-nav">
+              <button type="button" class="nav-btn" id="backBtn" disabled>← Back</button>
+              <button type="button" class="nav-btn" id="nextBtn">Next →</button>
+            </div>
+          </form>
+        </div>
+
+        <footer
+          style="text-align: center; margin-top: 40px; padding-bottom: 40px; color: var(--text-muted); font-size: 0.85rem;">
+
+          <p style="margin-top: 8px;">&copy; 2026 ADHD Prediction System.</p> <!-- Removed "Powered by" -->
+        </footer>
+      </div>
+    </div>
   </div>
+
   <script>
+    // Auto-fill education stage based on age
     document.getElementById("age").addEventListener("input", function () {
       const age = parseInt(this.value);
       const stageSelect = document.getElementById("EducationStage");
 
-      if (age <= 12) {
+      if (age >= 5 && age <= 12) {
         stageSelect.value = "Child";
-      }
-      else if (age >= 13 && age <= 18) {
+      } else if (age >= 13 && age <= 18) {
         stageSelect.value = "Teen";
-      }
-      else if (age >= 19 && age <= 22) {
+      } else if (age >= 19 && age <= 22) {
         stageSelect.value = "Undergrad";
-      }
-      else {
+      } else if (age >= 23) {
         stageSelect.value = "Adult";
+      }
+    });
+
+    // Listen for game completion
+    window.addEventListener('message', function (event) {
+      if (event.data.gameCompleted) {
+        document.getElementById('InattentionScore').value = event.data.inattentionScore;
+        document.getElementById('ImpulsivityScore').value = event.data.impulsivityScore;
+        document.getElementById('total_trials').value = event.data.total_trials;
+        document.getElementById('correct_go').value = event.data.correct_go;
+        document.getElementById('missed_go').value = event.data.missed_go;
+        document.getElementById('correct_inhibit').value = event.data.correct_inhibit;
+        document.getElementById('commission_errors').value = event.data.commission_errors;
+        document.getElementById('reaction_times').value = JSON.stringify(event.data.reaction_times);
+
+        document.getElementById('game-completion-status').style.display = 'block';
       }
     });
   </script>
